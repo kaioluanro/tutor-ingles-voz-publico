@@ -1,0 +1,33 @@
+# models and local data
+models/
+data/*
+!data/.gitkeep
+*.gguf
+
+# python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+ruff_cache/
+
+# env / secrets
+.env
+*.key
+
+# llama.cpp / tools
+tools/
+*.tar.gz
+*.zip
+
+# audio artifacts
+*.wav
+*.mp3
+!tests/fixtures/*.wav
+
+# editors
+.vscode/
+.idea/

@@ -1,0 +1,31 @@
+[project]
+name = "english-tutor"
+version = "0.1.0"
+description = "Local, low-latency English speaking tutor (voice in, voice out)"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "torch",
+    "faster-whisper",
+    "silero-vad",
+    "kokoro",
+    "soundfile",
+    "sounddevice",
+    "openai",
+    "pydantic>=2",
+    "pyyaml",
+    "rich",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

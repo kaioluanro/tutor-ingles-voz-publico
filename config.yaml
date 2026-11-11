@@ -1,0 +1,85 @@
+audio:
+  input_device: null          # null = system default
+  output_device: null
+  capture_sample_rate: 16000
+  vad_chunk: 512              # samples per Silero chunk at 16 kHz
+  vad_threshold: 0.5
+  min_utterance_ms: 400       # discard shorter noises
+  max_utterance_s: 30
+  pre_roll_ms: 300            # audio kept before detected speech start
+  post_playback_mute_ms: 300  # ignore mic briefly after the AI stops talking
+
+stt:
+  model: small.en
+  device: cuda                # cuda | cpu
+  compute_type: int8_float16  # on CPU use: int8
+  beam_size: 1
+  # Fase 12: sesgar o decoder para as palavras da conversa, custo zero.
+  # Ex.: "menu,waiter,table" quando o cenario for restaurant
+  hotwords: null
+  use_dialogue_context: true  # envia as ultimas falas como initial_prompt
+  # Abaixo disto a transcricao e considerada chute e o tutor pede repeticao
+  # em vez de responder algo fora do contexto. -1.0 e o proprio threshold
+  # do whisper; 2.4 e o compression_ratio dele. Meça com scripts/check_stt.py
+  # antes de mexer (o gate pega lixo, nao erro confiante — README 4.14).
+  min_avg_logprob: -1.0
+  max_compression_ratio: 2.4
+
+llm_local:
+  base_url: http://127.0.0.1:8080/v1
+  api_key: none
+  model: qwen3.5-4b
+  extra_body:
+    chat_template_kwargs: { enable_thinking: false }
+    cache_prompt: true
+  temperature: 0.7
+  top_p: 0.8
+  top_k: 20
+
+llm_remote:
+  enabled: false
+  base_url: https://openrouter.ai/api/v1
+  api_key_env: OPENROUTER_API_KEY   # read from environment, NEVER hardcode
+  model: ""
+  extra_body: {}
+  timeout_s: 20
+
+tts:
+  engine: kokoro
+  device: cuda                # cuda | cpu
+  accent: american            # american ('a') | british ('b')
+  voice: af_heart             # af_heart, af_bella, am_michael, bf_emma, bm_george
+  sample_rate: 24000
+  # Fase 12: voz e idioma da correcao falada (explicacao em portugues do
+  # Brasil). Precisa de rede uma unica vez para baixar a voz (~1 MB).
+  feedback_voice: pf_dora
+  feedback_lang: pt-br
+
+pipeline:
+  sentence_queue_max: 2
+  min_words_per_chunk: 3
+  history_max_turns: 8
+  context_tokens: 8192
+  # feedback de correcao roda em segundo plano, nunca no caminho da latencia
+  feedback_queue: 4          # pedidos de feedback pendentes (o resto e descartado)
+  feedback_timeout_s: 20     # teto por chamada ao LLM de feedback
+  # o conversation LLM e sempre o local; se o llama-server cair no meio da
+  # conversa, espera no /health por ate este tempo antes de desistir do turno
+  reconnect_timeout_s: 20
+  # Fase 12: fala a correcao em voz alta quando ha erro (inglês + pt-BR)
+  speak_feedback: true
+  # espera o feedback ficar pronto apos a resposta; se nao chegar a tempo,
+  # a correcao nao e falada e o turno segue. Nunca e caminho de latencia.
+  speak_feedback_wait_s: 4.0
+
+storage:
+  db_path: data/tutor.db
+
+llama_server:
+  binary: tools/llama.cpp/llama-server
+  model_path: models/Qwen3.5-4B-Q4_K_M.gguf
+  host: 127.0.0.1
+  port: 8080
+  ctx_size: 8192
+  gpu_layers: 99
+  extra_args: ["--jinja"]

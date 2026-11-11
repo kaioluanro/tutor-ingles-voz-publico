@@ -1,0 +1,24 @@
+beginner:
+  cefr: "A1-A2"
+  max_sentences: 2
+  max_tokens: 80
+  temperature: 0.7          # criatividade da fala (§8)
+  tts_speed: 0.88
+  end_silence_ms: 1500        # beginners hesitate more
+  allow_portuguese_help: true
+intermediate:
+  cefr: "B1-B2"
+  max_sentences: 3
+  max_tokens: 140
+  temperature: 0.7          # criatividade da fala (§8)
+  tts_speed: 1.0
+  end_silence_ms: 1100
+  allow_portuguese_help: false
+advanced:
+  cefr: "C1-C2"
+  max_sentences: 5
+  max_tokens: 220
+  temperature: 0.7          # criatividade da fala (§8)
+  tts_speed: 1.05
+  end_silence_ms: 900
+  allow_portuguese_help: false
